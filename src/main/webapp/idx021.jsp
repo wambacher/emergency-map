@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
 <!--meta http-equiv="Pragma" content="no-cache"--> 
-<title>OSM Emergency Map 2.0</title>
+<title>OSM Emergency Map 2.1</title>
 <!-- V 1 abgeleitet aus leaflet1/test7 
      V 1.1 Umbau der Layertabellen
      V 1.2 Test mit LayerControl
