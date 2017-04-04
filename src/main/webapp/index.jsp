@@ -15,6 +15,7 @@
      V 1.8 Localstore überarbeitet
      V 1.9 Size layers select list
      V 2.0 Edit with Josm
+     V 2.1 Fix zoom display
 -->
 <base target="_top" />
 
@@ -25,16 +26,16 @@
 <link rel='stylesheet' href='https://wambachers-osm.website/common/css/leaflet/Leaflet.EditInOSM.css' />
 <link rel='StyleSheet' href='https://wambachers-osm.website/common/js/leaflet/plugins/leaflet-messagebox/leaflet-messagebox.css'/>
 <link rel="StyleSheet" href='https://wambachers-osm.website/common/js/leaflet/plugins/Leaflet.Dialog/Leaflet.Dialog.css'/>
-<link rel='StyleSheet' href='css/map019.css'/>
+<link rel='StyleSheet' href='css/map021.css'/>
 
 <!--[if IE 6]>
-   <link href="css/ie6.css" rel="stylesheet" type="text/css" />
+   <link href="https://wambachers-osm.website/common/css/ie6.css" rel="stylesheet" type="text/css" />
 <![endif]-->
 
 <script>
    var myBase       = "emergency";
    var myVersion    = "2";
-   var mySubversion = "0"; 
+   var mySubversion = "1"; 
    var FEATURE_COUNT = 5;   
    var myName       = myBase+"-"+myVersion+"."+mySubversion;
    var database     = "planet3";
@@ -73,7 +74,7 @@
          margin:0px;
       } 
 
-#     .leaflet-tile { border: solid blue 1px; }
+#   .leaflet-tile { border: solid blue 1px; }
 
    </style>
 
@@ -167,7 +168,7 @@
          timeout: 300,
          exceptions: "application/vnd.ogc.se_inimage",
          maxZoom: 19,
-         minZoom: 10
+         minZoom: 11
       };
 
        var defaultParameters = {   // not used here!!!
@@ -227,20 +228,6 @@
                      },
                       Overlays[i].localOptions)));
       }
-
-/*
-      // Get url parameters
-      var params = {};
-      window.location.href.replace(/[?&]+([^=&]+)=([^&]*)/gi, function(m, key, value) {
-         params[key] = value;
-      })
-
-      if (params.layers) {
-         var activeLayers = params.layers.split(",").map(function(item) { // map function not supported in IE < 9
-            return layers[item];
-         });
-      }
-*/
         
       var baseLayers = {
          "OpenStreetMap.org":           osmOrg,
@@ -347,29 +334,45 @@
          "closeButton":	true
       };
       
-      var dialogOptions = {
-         "size":    [270,70],
-         "maxSize": [270,70],
-         "anchor":  [2,50]
-      };
-      
-      var dialog = L.control.dialog(dialogOptions)
-                    .setContent("<p style='font-size:200%; margin:0; text-align:center;'>Emergency Map"+myVersion+"."+mySubversion+"</p>"+
-                                "<div id='lag'></div>")
+      var dialogBoxWidth = 260;
+      var dialog = L.control.dialog({
+                   "size":    [dialogBoxWidth, 60],
+                   "minSize": [dialogBoxWidth, 60],
+                   "maxSize": [dialogBoxWidth, 90],
+                    "anchor": [  2, 40]
+                  }).setContent("<p style='font-size:200%; margin:0; text-align:center;'>Emergency Map&nbsp;"+myVersion+"."+mySubversion+"</p>"+
+                                "<div id='lag'></div>" +
+                                "<div id='zoomin' hidden=true><p style='font-size:150%;margin:0;text-align:center;color:#ff0000;'>Zoom in (to load data)</p></div>")
                     .addTo(map);
-      
-//    var options = { position: "bottomright", timeout: 5000 }
-//    var box = L.control.messagebox(options).addTo(map);
+                    
+         map.on('zoomend', function(e) {
+         var zoom = map.getZoom();
+         console.log("zoom changed to",zoom);
+         if (zoom >= global_options.minZoom) {
+            console.log("fetch data");
+            dialog.setSize([dialogBoxWidth, 60]);
+            $('#zoomin').hide(); 
+         }
+         else {
+            console.log("don't fetch data");
+            dialog.setSize([dialogBoxWidth,90]);
+            $('#zoomin').show(); 
+         }
+      });
       
       map.addControl(new L.Control.Permalink({text: 'Permalink', layers: layerControl, position: 'bottomright'}));
       
+      map.fireEvent("zoomend");
+      
       map.addEventListener("click", onMapClick);
       
-      setInterval(getAction,600000); 
+//    document.getElementById('map').style.cursor = 'crosshair';
+
+      setInterval(getAction,60*10*1000); 
       getAction(); 
       
       getOsmReplicationLag();
-      setInterval(getOsmReplicationLag,60000);  
+      setInterval(getOsmReplicationLag,60*1000);  
       setInterval(LagAnzeigen,1000);  
 
 // ********************************************************************************************
@@ -550,6 +553,37 @@
               .openOn(map);
          }
       }
+      
+// ----------------------------------------------------------------------------------------
+
+      function createQueryFromLayers() {
+         console.log("createQueryFromLayers()");
+         var query = "";
+         var first = true;
+         for (var i=0;i<=Overlays.length-1;i++) {
+//          console.log("Overlays["+i+"].active=", Overlays[i].active);
+            if (Overlays[i].active) {
+               console.log("active layer:",Overlays[i].gsLayer);
+               if (first) {
+                  query = "&TYPENAMES=";
+                  first = false;
+               }
+               query = query + (Overlays[i].queryLayer || Overlays[i].gsLayer) +","; 
+            }
+         }
+
+         query = query.substring(0,query.length-1); // remove trailing ","
+
+/*       for (var i=0;i<=Overlays.length-1;i++) {
+            if (Overlays[i].active) {
+               query = query + "&QUERY_LAYERS=" + (Overlays[i].queryLayer || Overlays[i].gsLayer) + ",";
+            }
+         }
+         query = query.substring(0,query.length-1); // remove trailing "," */
+         
+         console.log("query=",query);
+         return query;
+      }  
 
 // ----------------------------------------------------------------------------------------
 
@@ -596,23 +630,6 @@
 
          return content; 
       }
-// ----------------------------------------------------------------------------------------
-
-      function createQueryFromLayers() {
-         console.log("createQueryFromLayers()");
-         var query = "";
-         for (var i=0;i<=Overlays.length-1;i++) {
-//          console.log("Overlays["+i+"].active=", Overlays[i].active);
-            if (Overlays[i].active) {
-               console.log("active layer:",Overlays[i].gsLayer);
-               query = query + Overlays[i].gsLayer +","; 
-            }
-         }
-         query = "&LAYERS="+query.substring(0,query.length-1)
-               + "&QUERY_LAYERS="+query.substring(0,query.length-1);    // warum auch immer
-         console.log("query=",query);
-         return query;
-      }  
    
 // ****************************************************************************** //
 
