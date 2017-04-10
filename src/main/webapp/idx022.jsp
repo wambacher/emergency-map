@@ -16,7 +16,7 @@
      V 1.9 Size layers select list
      V 2.0 Edit with Josm
      V 2.1 Fix zoom display
-     V 2.2 Layer Emergency Control Centre added
+     V 2.2 Layer Emergency Control Centre added and removed
 -->
 <base target="_top" />
 
@@ -200,12 +200,12 @@
                          order:8, url:geosUrl, gsLayer:"osm:Emergency_Exits2"},
             {layer:"emergency_phones", display:"Emergency Phones", active:false, visible:true, popup:true,
                          order:9, url:geosUrl, gsLayer:"osm:Emergency_Phones"},
-            {layer:"emergency_control_centre", display:"Emergency Control Centre", active:false, visible:true, popup:true,
-                         order:10, url:geosUrl, gsLayer:"osm:EM_control_centre"},
+//            {layer:"emergency_control_centre", display:"Emergency Control Centre", active:false, visible:true, popup:true,
+//                         order:10, url:geosUrl, gsLayer:"osm:EM_control_centre"},
             {layer:"ambulance_stations", display:"Ambulance Stations", active:false, visible:true, popup:true,
-                         order:11, url:geosUrl, gsLayer:"osm:ambulance_stations"},
+                         order:10, url:geosUrl, gsLayer:"osm:ambulance_stations"},
             {layer:"defibrillators", display:"Defibrillators", active:false, visible:true, popup:true,
-                         order:12, url:geosUrl, gsLayer:"osm:defibrillators"}
+                         order:11, url:geosUrl, gsLayer:"osm:defibrillators"}
       ];
 
       var localStorageBase = "";
@@ -251,9 +251,9 @@
          "Emergency Assembly Points":   OVL[ 6],
          "Emergency Exits":             OVL[ 7],
          "Emergency Phones":            OVL[ 8],
-         "Emergency Control Centre":    OVL[ 9],
-         "Ambulance Stations":          OVL[10],
-         "Defibrillators":              OVL[11]
+//       "Emergency Control Centre":    OVL[ 9],
+         "Ambulance Stations":          OVL[ 9],
+         "Defibrillators":              OVL[10]
       };
 
       var initLayer;
