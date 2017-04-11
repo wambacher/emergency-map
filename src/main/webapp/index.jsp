@@ -36,7 +36,7 @@
 <script>
    var myBase       = "emergency";
    var myVersion    = "2";
-   var mySubversion = "2"; 
+   var mySubversion = "3"; 
    var FEATURE_COUNT = 5;   
    var myName       = myBase+"-"+myVersion+"."+mySubversion;
    var database     = "planet3";
@@ -569,7 +569,7 @@
             if (Overlays[i].active) {
                console.log("active layer:",Overlays[i].gsLayer);
                if (first) {
-                  query = "&TYPENAMES=";
+                  query = "&LAYERS=";
                   first = false;
                }
                query = query + (Overlays[i].queryLayer || Overlays[i].gsLayer) +","; 
@@ -578,12 +578,12 @@
 
          query = query.substring(0,query.length-1); // remove trailing ","
 
-/*       for (var i=0;i<=Overlays.length-1;i++) {
+         for (var i=0;i<=Overlays.length-1;i++) {
             if (Overlays[i].active) {
                query = query + "&QUERY_LAYERS=" + (Overlays[i].queryLayer || Overlays[i].gsLayer) + ",";
             }
          }
-         query = query.substring(0,query.length-1); // remove trailing "," */
+         query = query.substring(0,query.length-1); // remove trailing ","
          
          console.log("query=",query);
          return query;
