@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
 <!--meta http-equiv="Pragma" content="no-cache"--> 
-<title>OSM Emergency Map 2.2</title>
+<title>OSM Emergency Map 2.3</title>
 <!-- V 1 abgeleitet aus leaflet1/test7 
      V 1.1 Umbau der Layertabellen
      V 1.2 Test mit LayerControl
@@ -17,6 +17,7 @@
      V 2.0 Edit with Josm
      V 2.1 Fix zoom display
      V 2.2 Layer Emergency Control Centre added and removed
+     V 2.3 Popup error beseitigt
 -->
 <base target="_top" />
 
