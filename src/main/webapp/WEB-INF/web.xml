@@ -21,5 +21,14 @@
     <servlet-mapping>
         <servlet-name>getAction5</servlet-name>
         <url-pattern>/getAction5</url-pattern>
+    </servlet-mapping>  
+    
+    <servlet>
+        <servlet-name>getWikimedia</servlet-name>
+        <servlet-class>com.wno.getWikimedia</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>getWikimedia</servlet-name>
+        <url-pattern>/getWikimedia</url-pattern>
     </servlet-mapping>
 </web-app>
