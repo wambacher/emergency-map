@@ -3,7 +3,7 @@
 <head>
 <meta http-equiv='Content-Type' content='text/html; charset=utf-8'>
 <!--meta http-equiv="Pragma" content="no-cache"--> 
-<title>OSM Emergency Map 2.4</title>
+<title>OSM Emergency Map 2.5</title>
 <!-- V 1 abgeleitet aus leaflet1/test7 
      V 1.1 Umbau der Layertabellen
      V 1.2 Test mit LayerControl
@@ -19,6 +19,7 @@
      V 2.2 Layer Emergency Control Centre added and removed
      V 2.3 Popup error beseitigt
      V 2.4 Images im Popup
+     V 2.5 Get Wikimedia images too
 -->
 <base target="_top" />
 
@@ -38,7 +39,7 @@
 <script>
    var myBase       = "emergency";
    var myVersion    = "2";
-   var mySubversion = "4"; 
+   var mySubversion = "5"; 
    var FEATURE_COUNT = 5;   
    var myName       = myBase+"-"+myVersion+"."+mySubversion;
    var database     = "planet3";
@@ -346,9 +347,11 @@
                    "minSize": [dialogBoxWidth, 60],
                    "maxSize": [dialogBoxWidth, 90],
                     "anchor": [  2, 40]
-                  }).setContent("<p style='font-size:200%; margin:0; text-align:center;'>Emergency Map&nbsp;"+myVersion+"."+mySubversion+"</p>"+
-                                "<div id='lag'></div>" +
-                                "<div id='zoomin' hidden=true><p style='font-size:150%;margin:0;text-align:center;color:#ff0000;'>Zoom in (to load data)</p></div>")
+                  }).setContent("<p style='font-size:200%; margin:0; text-align:center;'>Emergency Map&nbsp;"
+                              + myVersion+"."+mySubversion+"</p>"
+                              + "<div id='lag'></div>"
+                              + "<div id='zoomin' hidden=true><p style='font-size:150%;margin:0;text-align:center;color:#ff0000;'>"
+                              + "Zoom in (to load data)</p></div>")
                     .addTo(map);
                     
          map.on('zoomend', function(e) {
@@ -579,9 +582,16 @@
 
          query = query.substring(0,query.length-1); // remove trailing ","
 
+         var first = true;
          for (var i=0;i<=Overlays.length-1;i++) {
+//          console.log("Overlays["+i+"].active=", Overlays[i].active);
             if (Overlays[i].active) {
-               query = query + "&QUERY_LAYERS=" + (Overlays[i].queryLayer || Overlays[i].gsLayer) + ",";
+               console.log("active layer:",Overlays[i].gsLayer);
+               if (first) {
+                  query = query + "&QUERY_LAYERS=";
+                  first = false;
+               }
+               query = query + (Overlays[i].queryLayer || Overlays[i].gsLayer) +","; 
             }
          }
          query = query.substring(0,query.length-1); // remove trailing ","
@@ -615,14 +625,32 @@
                      content += "<img id='linkedImage' src='"+imageLink+"'></img>";
                      break;
                   case "file":
-                     console.log("doing file", imageLink.split(":")[1]);
-                     var uri = encodeURI(imageLink.split(":")[1].replace(/ /g,"_"));
-                     console.log("uri=",uri);
-//                      content += "<a title='Sashinoto [CC BY 3.0 (http://creativecommons.org/licenses/by/3.0)], via Wikimedia Commons'"
-//                              +  "    href='https://commons.wikimedia.org/wiki/File:"+uri+"'>"
-//                              +  "    <img width='512' alt='"+imageLink.split(":")[1]+"'"
-//                              +  "    src='https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Witten%2C_Germany_-_panoramio_-_Sashinoto_%2882%29.jpg/512px-Witten%2C_Germany_-_panoramio_-_Sashinoto_%2882%29.jpg'"
-//                              +  "/></a>";
+                     var image = imageLink.split(":")[1].replace(/ /g,"_");
+                     console.log("doing file", image);
+                     $.ajax({
+                     type:      "GET",
+                     timeout:   30000,
+                     url:       "getWikimedia", 
+                     data: {
+                          caller:   myName,
+                          base:     "emergency",
+                          debug:    3,
+                          
+                          action:   "query",
+                          format:   "json",
+                          prop:     "categories",
+                          rvprop:   "contents",
+                          titles:   image
+                     },
+                     async:     false,
+                     dataType:  "json",
+                     success:   function(text,status) {
+                                   console.log(text,status);
+                                },
+                     error:     function(XMLHttpRequest, textStatus, errorThrown) {
+                                   console.log("An error has occurred making the request: " + textStatus + errorThrown);
+                                }   
+                     });           
                      break;
                   default:
                      alert ("Strange image link: "+imageLink+" please roport to wambacher@gmx.de");
