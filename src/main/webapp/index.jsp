@@ -677,9 +677,9 @@
                                    if (debug > 2) console.log("thumb:",thumb);
                                    
                                    var attribution = "<a title='By " + user + " (" + credit +") [" + lsm + "], via Wikimedia Commons'\n"
-                                                   + "href='https://commons.wikimedia.org/wiki/File%3A" + image +"'>\n"
+                                                   + "href='https://commons.wikimedia.org/wiki/File%3A" + image +"' target='_blank'>\n"
                                                    + "<img width='"+px+"' alt='" + alt + "'\n"
-                                                   + "src='" + thumb + "' target='_blank'/></a>";
+                                                   + "src='" + thumb + "'/></a>";
                                                    
                                    if (debug > 0) console.log("Attribution",attribution);
                                    
