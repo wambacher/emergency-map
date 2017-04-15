@@ -283,7 +283,7 @@
          center:		center,    // wambach                  
          zoom:			zoom,
          minZoom:		6,
-         maxZoom:		19,
+         maxZoom:		18,
          layers:		initLayer,
          loadingControl:	true,
          editInOSMControlOptions: {
@@ -334,8 +334,8 @@
       var popupContent = null;
 
       var popupOptions = {
-         "minWidth":	"491",
-         "maxWidth":	"691",
+         "minWidth":	"350",
+         "maxWidth":	"600",
          "minHeight":	"300",
          "maxHeight":	"400",
          "closeButton":	true
@@ -530,9 +530,6 @@
             url:	geosUrl+encodeURI(URL),
             async:	false,
             success:	function (data, status, xhr) {
-//                         console.log("data: "+data);
-//                         console.log ("typeof data: "+ typeof data);
-//                         console.log("status: "+status);
                            console.log("xhr: "+xhr.status+" "+xhr.statusText);
                            var features = data.features;
                            if (features.length > 0) {
@@ -541,13 +538,6 @@
                            else
                               popupContent = null;
                               console.log("in ajax popupContent="+popupContent);
-/*                            var jfeatures = xhr.responseJSON.features;
-                                 if (jfeatures.length > 0) {
-                                    alert("JSON="+xhr.responseText);
-//                                  popupContent = createContentFromFeature(xhr.features[0]);
-                                 }
-                                 else
-                                    popupContent = null; */
                         },
              error:	function (xhr, status, error) {
                            console.log("in error xhr: "+xhr.status+" "+xhr.statusText);
@@ -603,6 +593,8 @@
 // ----------------------------------------------------------------------------------------
 
       function createContentFromFeature(feature) {
+         var debug = 0;
+         var px = 256;
          var tags = feature.properties.tags;
          console.log("tags=",tags);
          var content = "";
@@ -610,8 +602,8 @@
          content += "<div id='popup'>";
          content +=    "<div id='popupHeader'>";
          content +=       "<div id='ph_left'>";
-         content +=          "<p>Object: "+feature.properties.osm_link+"</p>";
          content +=          "<p>Query: "+feature.properties.query+"</p>";
+         content +=          "<p>Object: <a href='"+feature.properties.osm_link+"'>"+feature.properties.osm_link+"</a></p>";
          content +=       "</div>";
          content +=       "<div id='ph_right'>";
          $.each( tagsObj, function( key, imageLink ) {
@@ -622,11 +614,13 @@
                switch(proto) {
                   case "http":
                   case "https":
-                     content += "<img id='linkedImage' src='"+imageLink+"'></img>";
+                     content += "<a href='"+imageLink+"' target='_blank'><img src='"+imageLink+"' width='"+px+"px'/></a>";
                      break;
                   case "file":
                      var image = imageLink.split(":")[1].replace(/ /g,"_");
                      console.log("doing file", image);
+                     var titles = "Image:"+image;
+                     console.log("tiles:",titles);
                      $.ajax({
                      type:      "GET",
                      timeout:   30000,
@@ -634,18 +628,64 @@
                      data: {
                           caller:   myName,
                           base:     "emergency",
-                          debug:    3,
+                          debug:    debug,
                           
                           action:   "query",
                           format:   "json",
-                          prop:     "categories",
-                          rvprop:   "contents",
-                          titles:   image
+                          prop:     "imageinfo",
+                          iiprop:   "user|url|extmetadata",
+                          titles:   titles
                      },
                      async:     false,
                      dataType:  "json",
-                     success:   function(text,status) {
-                                   console.log(text,status);
+                     success:   function(jsonObject,status) {
+//                                 <a title="By Reclus (Own work) [CC0], via Wikimedia Commons"
+//                                 <a title='By Reclus (Own work) [CC0], via Wikimedia Commons'
+
+//                                 href="https://commons.wikimedia.org/wiki/File%3AWitten_Zollhaus.jpg">
+//                                 href='https://commons.wikimedia.org/wiki/File%3AWitten_Zollhaus.jpg'>
+
+//                                 <img width="512" alt="Witten Zollhaus" 
+//                                 <img width='512' alt='Witten Zollhaus'
+
+//                                 src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Witten_Zollhaus.jpg/512px-Witten_Zollhaus.jpg"/></a>
+//                                 src='https://upload.wikimedia.org/wikipedia/commons/thumb/5/55/Witten_Zollhaus.jpg/512px-Witten_Zollhaus.jpg'/></a>
+
+                                   if (debug > 2) console.log(jsonObject,status);
+                                   
+                                   var pages = jsonObject.query.pages;
+                                   var imageinfo = pages[Object.keys(pages)[0]].imageinfo[0];
+                                   var user = imageinfo.user;
+                                   if (debug > 2) console.log("user:", user);
+                                   
+                                   var url = imageinfo.url;
+                                   if (debug > 2) console.log("url:", url);
+                                   
+                                   var extmetadata = imageinfo.extmetadata;
+                                   var credit = $(extmetadata.Credit.value).text();
+                                   if (debug > 2) console.log("credit:", credit);
+                                   
+                                   var lsm = extmetadata.LicenseShortName.value;
+                                   if (debug > 2) console.log("LicenseShortName:", lsm);
+                                   
+                                   var alt = extmetadata.ObjectName.value;
+                                   if (debug > 2) console.log("alt:", alt);
+
+                                   var thumb = "https://upload.wikimedia.org/wikipedia/commons/thumb/" 
+                                             + url.substring(47)
+                                             + "/"+px+"px-"+image;
+                                   if (debug > 2) console.log("thumb:",thumb);
+                                   
+                                   var attribution = "<a title='By " + user + " (" + credit +") [" + lsm + "], via Wikimedia Commons'\n"
+                                                   + "href='https://commons.wikimedia.org/wiki/File%3A" + image +"'>\n"
+                                                   + "<img width='"+px+"' alt='" + alt + "'\n"
+                                                   + "src='" + thumb + "' target='_blank'/></a>";
+                                                   
+                                   if (debug > 0) console.log("Attribution",attribution);
+                                   
+                                   content += attribution;
+                                   
+                                   if (debug > 0) console.log("content:",content);
                                 },
                      error:     function(XMLHttpRequest, textStatus, errorThrown) {
                                    console.log("An error has occurred making the request: " + textStatus + errorThrown);
@@ -661,7 +701,7 @@
          content +=    "</div>";
 	     content +=    "<div id='popupTable'>";
          content += "<table border='1'>";
-         content += "   <td>Key</td><td>Value</td>";
+//       content += "   <td>Key</td><td>Value</td>";
          $.each( tagsObj, function( key, value ) {
             if (value != null)
                switch(key) {
@@ -673,6 +713,10 @@
                   case "jd":
                   case "query":
                   case "osm_user":
+                  case "osm_uid":
+                     break;
+                  case "osm_changeset":
+                     content += "   <tr><td>"+key+"</td><td><a href='https://openstreetmap.org/changeset/"+value+"' target='_blank'>"+value+"</a></td></tr>";
                      break;
                   default:
                      content += "   <tr><td>"+key+"</td><td>"+value+"</td></tr>";
