@@ -5,22 +5,31 @@
 <web-app>
     <display-name>Meine Web-Anwendung ;)</display-name>
  
-    <servlet>
+    <!--servlet>
         <servlet-name>getOsmReplicationLag3</servlet-name>
         <servlet-class>com.wno.getOsmReplicationLag3</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>getOsmReplicationLag3</servlet-name>
         <url-pattern>/getOsmReplicationLag3</url-pattern>
+    </servlet-mapping-->
+    
+    <servlet>
+        <servlet-name>getOsmReplicationLag4</servlet-name>
+        <servlet-class>com.wno.getOsmReplicationLag4</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>getOsmReplicationLag4</servlet-name>
+        <url-pattern>/getOsmReplicationLag4</url-pattern>
     </servlet-mapping>
     
     <servlet>
-        <servlet-name>getAction5</servlet-name>
-        <servlet-class>com.wno.getAction5</servlet-class>
+        <servlet-name>getAction7</servlet-name>
+        <servlet-class>com.wno.getAction7</servlet-class>
     </servlet>
     <servlet-mapping>
-        <servlet-name>getAction5</servlet-name>
-        <url-pattern>/getAction5</url-pattern>
+        <servlet-name>getAction7</servlet-name>
+        <url-pattern>/getAction7</url-pattern>
     </servlet-mapping>  
     
     <servlet>
@@ -30,5 +39,14 @@
     <servlet-mapping>
         <servlet-name>getWikimedia</servlet-name>
         <url-pattern>/getWikimedia</url-pattern>
+    </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>getOsmWiki</servlet-name>
+        <servlet-class>com.wno.getOsmWiki</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>getOsmWiki</servlet-name>
+        <url-pattern>/getOsmWiki</url-pattern>
     </servlet-mapping>
 </web-app>

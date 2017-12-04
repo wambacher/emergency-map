@@ -7,7 +7,7 @@
   <packaging>war</packaging>
   <version>1.0</version>
   <name>Emergency-Map</name>
-  <url>https://osm.wno-edv-service.de/emergency</url>
+  <url>https://wambachers-osm.website/emergency</url>
 
   <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -46,8 +46,6 @@
       <version>2.0</version>
     </dependency>
     
-    
-        
     <dependency>
       <groupId>com.wno</groupId>
       <artifactId>Common</artifactId>
@@ -64,8 +62,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>2.5.1</version>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.8</source>
+          <target>1.8</target>
           <encoding>UTF-8</encoding>
         </configuration>
       </plugin>
